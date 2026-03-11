@@ -1,411 +1,351 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, CheckCircle } from 'lucide-react';
 
-interface FormData {
-  step1: {
-    businessNameConfirmed: string;
-    addressChanged: string;
-    entityType: string;
-  };
-  step2: {
-    businessDocuments: string;
-    accountingMethod: string;
-  };
-  step3: {
-    incomeLines: string;
-    deductions: string;
-  };
-  step4: {
-    assets: string;
-    liabilities: string;
-  };
-  step5: {
-    relatedParties: string;
-    otherInfo: string;
-  };
-  step6: {
-    review: string;
-  };
+interface Question {
+  id: string;
+  question: string;
+  description?: string;
+  required: boolean;
+  options: string[];
+}
+
+interface Section {
+  id: number;
+  title: string;
+  shortTitle: string;
+  questions: Question[];
 }
 
 export default function TaxIntake() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({
-    step1: { businessNameConfirmed: '', addressChanged: '', entityType: '' },
-    step2: { businessDocuments: '', accountingMethod: '' },
-    step3: { incomeLines: '', deductions: '' },
-    step4: { assets: '', liabilities: '' },
-    step5: { relatedParties: '', otherInfo: '' },
-    step6: { review: '' },
-  });
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  const steps = [
-    { number: 1, title: 'Basi\ncs\nInfo', shortTitle: 'Basic Info' },
-    { number: 2, title: 'Financial\nDocume\nnts', shortTitle: 'Financial Documents' },
-    { number: 3, title: 'Income\nReve\nnue', shortTitle: 'Income Revenue' },
-    { number: 4, title: 'Busin\ness\nExpen\nses', shortTitle: 'Business Expenses' },
-    { number: 5, title: 'Assets', shortTitle: 'Assets' },
-    { number: 6, title: 'Rela\nted\nParty', shortTitle: 'Related Party' },
-  ];
-
-  const questions = [
+  const sections: Section[] = [
     {
-      step: 1,
+      id: 1,
+      title: 'Basic Business Information',
+      shortTitle: 'Basic\nInfo',
       questions: [
         {
-          id: 'businessNameConfirmed',
+          id: 'q1_1',
+          question: 'What is your business entity type?',
+          description: 'Your entity type determines which documents and tax forms are required for your return.',
+          required: true,
+          options: ['S-Corporation', 'C-Corporation', 'Partnership', 'LLC (taxed as S-Corp)', 'LLC (taxed as Partnership)', 'Other'],
+        },
+        {
+          id: 'q1_2',
           question: 'Have you confirmed your business legal name and EIN?',
           required: true,
           options: ['Yes', 'No'],
-          description: '',
         },
         {
-          id: 'addressChanged',
+          id: 'q1_3',
           question: 'Has your business address changed this year?',
           required: false,
           options: ['Yes', 'No'],
-          description: '',
-          showSkip: true,
         },
         {
-          id: 'entityType',
-          question: 'What is your business entity type?',
-          required: true,
-          options: ['S-Corporation', 'C-Corporation', 'Partnership', 'LLC (taxed as S-Corp)', 'LLC (taxed as Partnership)', 'Other'],
-          description: 'Your entity type determines which documents and tax forms are required for your return.',
+          id: 'q1_4',
+          question: 'Do you operate in multiple states?',
+          required: false,
+          options: ['Yes', 'No'],
         },
       ],
     },
     {
-      step: 2,
+      id: 2,
+      title: 'Financial Documents',
+      shortTitle: 'Financial\nDocume\nnts',
       questions: [
         {
-          id: 'businessDocuments',
-          question: 'Do you have all required business documents?',
-          required: true,
+          id: 'q2_1',
+          question: 'Do you have bank statements for all business accounts?',
+          required: false,
           options: ['Yes', 'No'],
-          description: 'Bank statements, invoices, receipts, and other supporting documents',
         },
         {
-          id: 'accountingMethod',
+          id: 'q2_2',
+          question: 'Do you have all required business documents?',
+          description: 'Bank statements, invoices, receipts, and other supporting documents',
+          required: true,
+          options: ['Yes', 'No'],
+        },
+        {
+          id: 'q2_3',
           question: 'What accounting method does your business use?',
+          description: 'This determines how you record income and expenses',
           required: true,
           options: ['Cash', 'Accrual', 'Hybrid'],
-          description: 'This determines how you record income and expenses',
         },
       ],
     },
     {
-      step: 3,
+      id: 3,
+      title: 'Income & Revenue',
+      shortTitle: 'Income\n&\nReve\nnue',
       questions: [
         {
-          id: 'incomeLines',
+          id: 'q3_1',
           question: 'Do you have income sources to report?',
-          required: true,
-          options: ['Yes', 'No'],
           description: 'Sales, services, investment income, or other revenue',
+          required: true,
+          options: ['Yes', 'No'],
         },
+      ],
+    },
+    {
+      id: 4,
+      title: 'Business Expenses',
+      shortTitle: 'Busin\ness\nExpen\nses',
+      questions: [
         {
-          id: 'deductions',
+          id: 'q4_1',
           question: 'Do you have business expenses to deduct?',
-          required: true,
-          options: ['Yes', 'No'],
           description: 'Operating costs, supplies, utilities, and other deductible expenses',
+          required: true,
+          options: ['Yes', 'No'],
         },
       ],
     },
     {
-      step: 4,
+      id: 5,
+      title: 'Assets',
+      shortTitle: 'Assets',
       questions: [
         {
-          id: 'assets',
+          id: 'q5_1',
           question: 'Do you have capital assets or depreciation?',
-          required: true,
-          options: ['Yes', 'No'],
           description: 'Equipment, property, vehicles, or other assets purchased this year',
-        },
-        {
-          id: 'liabilities',
-          question: 'Do you have business liabilities to report?',
           required: true,
           options: ['Yes', 'No'],
-          description: 'Business loans, credit lines, or other outstanding debts',
         },
       ],
     },
     {
-      step: 5,
+      id: 6,
+      title: 'Related Party',
+      shortTitle: 'Rela\nted\nParty',
       questions: [
         {
-          id: 'relatedParties',
+          id: 'q6_1',
           question: 'Do you have related party transactions?',
-          required: false,
-          options: ['Yes', 'No'],
           description: 'Transactions with family members or other related entities',
-          showSkip: true,
-        },
-        {
-          id: 'otherInfo',
-          question: 'Are there any other important details for your return?',
           required: false,
           options: ['Yes', 'No'],
-          description: 'Important information that may affect your tax return',
-          showSkip: true,
-        },
-      ],
-    },
-    {
-      step: 6,
-      questions: [
-        {
-          id: 'review',
-          question: 'Please review your information',
-          required: false,
-          options: [],
-          description: 'Summary of your tax intake information',
-          isReview: true,
         },
       ],
     },
   ];
 
-  const currentQuestions = questions.find((q) => q.step === currentStep)?.questions || [];
+  const allQuestions = sections.flatMap(section => section.questions);
+  const currentQuestion = allQuestions[currentQuestionIndex];
 
-  const handleAnswer = (questionId: string, value: string) => {
-    const stepKey = `step${currentStep}` as keyof FormData;
-    setFormData({
-      ...formData,
-      [stepKey]: {
-        ...formData[stepKey],
-        [questionId]: value,
-      },
-    });
+  const getCurrentSection = () => {
+    let count = 0;
+    for (const section of sections) {
+      if (currentQuestionIndex < count + section.questions.length) {
+        return {
+          section,
+          questionInSection: currentQuestionIndex - count + 1,
+        };
+      }
+      count += section.questions.length;
+    }
+    return { section: sections[0], questionInSection: 1 };
+  };
+
+  const { section: currentSection, questionInSection } = getCurrentSection();
+
+  const getCompletedSections = () => {
+    const completed: number[] = [];
+    let count = 0;
+    for (const section of sections) {
+      const sectionQuestions = section.questions;
+      const allAnswered = sectionQuestions.every(q => answers[q.id]);
+      if (allAnswered && currentQuestionIndex > count + section.questions.length - 1) {
+        completed.push(section.id);
+      }
+      count += section.questions.length;
+    }
+    return completed;
+  };
+
+  const completedSections = getCompletedSections();
+
+  const handleAnswer = (value: string) => {
+    setAnswers({ ...answers, [currentQuestion.id]: value });
   };
 
   const handleNext = () => {
-    if (currentStep < 6) {
-      setCurrentStep(currentStep + 1);
+    if (currentQuestionIndex < allQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
 
-  const getStepProgress = () => {
-    const totalQuestions = currentQuestions.length;
-    if (totalQuestions === 0) return 0;
-    const answered = currentQuestions.filter((q) => {
-      const stepKey = `step${currentStep}` as keyof FormData;
-      const value = formData[stepKey][q.id as keyof FormData[keyof FormData]];
-      return value !== '';
-    }).length;
-    return Math.ceil((answered / totalQuestions) * 100);
-  };
-
-  const isCurrentStepValid = () => {
-    return currentQuestions.every((q) => {
-      if (!q.required) return true;
-      const stepKey = `step${currentStep}` as keyof FormData;
-      const value = formData[stepKey][q.id as keyof FormData[keyof FormData]];
-      return value !== '';
-    });
+  const canProceed = () => {
+    if (currentQuestion.required) {
+      return !!answers[currentQuestion.id];
+    }
+    return true;
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-[#0a0a0a]">
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <div className="text-sm text-gray-500 mb-4">
-              Acme Corp • 2025 Tax Year
-              <span className="font-semibold text-white ml-1">Guided Intake</span>
-              <span className="ml-2 text-[#b89968]">
-                {currentStep === 1 ? 'Basic Business Information' : ''}
-                {currentStep === 2 ? 'Financial Documents' : ''}
-                {currentStep === 3 ? 'Income & Revenue' : ''}
-                {currentStep === 4 ? 'Business Expenses' : ''}
-                {currentStep === 5 ? 'Assets' : ''}
-                {currentStep === 6 ? 'Review' : ''}
-              </span>
-              <span className="ml-2 text-[#3b82f6] text-xs">IN PROGRESS</span>
-            </div>
-
-            <div className="mt-8 mb-8">
-              <div className="flex items-start justify-between gap-2">
-                {steps.map((step, idx) => {
-                  const isActive = step.number === currentStep;
-                  const isCompleted = step.number < currentStep;
-
-                  return (
-                    <div key={step.number} className="flex flex-col items-center flex-1">
-                      <div className="flex items-center w-full justify-between mb-4">
-                        <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all ${
-                            isActive
-                              ? 'bg-[#b89968] text-white'
-                              : isCompleted
-                                ? 'bg-[#10b981] text-white'
-                                : 'bg-gray-700 text-gray-400'
-                          }`}
-                        >
-                          {isCompleted ? '✓' : step.number}
-                        </div>
-                        {idx < steps.length - 1 && (
-                          <div
-                            className={`flex-1 h-1 mx-2 ${
-                              isCompleted ? 'bg-[#10b981]' : 'bg-gray-700'
-                            }`}
-                          />
-                        )}
-                      </div>
-                      <div className="text-xs text-center text-gray-400 whitespace-nowrap">
-                        <div className="text-xs">{step.shortTitle.split(' ')[0]}</div>
-                        {step.shortTitle.split(' ').length > 1 && (
-                          <div className="text-xs">{step.shortTitle.split(' ').slice(1).join(' ')}</div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+    <div className="min-h-screen bg-[#121212] text-white">
+      <div className="border-b border-gray-800">
+        <div className="max-w-5xl mx-auto px-8 py-5">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-gray-400">Acme Corp • 2025 Tax Year</span>
+              <span className="text-white font-medium">Guided Intake</span>
+              <span className="text-gray-400">•</span>
+              <span className="text-white">{currentSection.title}</span>
+              <span className="text-gray-400">•</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-blue-400 text-xs font-medium">IN PROGRESS</span>
               </div>
             </div>
-
-            <div className="text-center mb-12">
-              <div className="text-sm text-gray-400">
-                Section {currentStep} of 6 • Question {currentQuestions.length > 0 ? 1 : 0} of{' '}
-                {currentQuestions.length}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            {currentStep === 6 ? (
-              <div className="text-center py-12">
-                <h2 className="text-3xl font-semibold mb-4">Intake Complete</h2>
-                <p className="text-gray-400 mb-8">Your tax intake information has been submitted.</p>
-                <button className="px-6 py-2 bg-[#b89968] hover:bg-[#a68959] text-white rounded-lg transition-colors">
-                  Save & Exit
-                </button>
-              </div>
-            ) : (
-              currentQuestions.map((question, idx) => (
-                <div key={question.id}>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h2 className="text-2xl font-semibold">{question.question}</h2>
-                      {question.required ? (
-                        <span className="text-xs font-semibold text-red-500">REQUIRED</span>
-                      ) : (
-                        <span className="text-xs font-semibold text-gray-500">OPTIONAL</span>
-                      )}
-                    </div>
-                    {question.description && (
-                      <p className="text-gray-400 text-sm mt-2">{question.description}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-3 mb-12">
-                    {question.options.map((option) => {
-                      const stepKey = `step${currentStep}` as keyof FormData;
-                      const isSelected =
-                        formData[stepKey][question.id as keyof FormData[keyof FormData]] === option;
-
-                      return (
-                        <button
-                          key={option}
-                          onClick={() => handleAnswer(question.id, option)}
-                          className={`w-full p-5 rounded-lg border-2 transition-all text-left flex items-center gap-4 ${
-                            isSelected
-                              ? 'border-[#b89968] bg-[#1a1a1a]'
-                              : 'border-gray-700 bg-[#1a1a1a] hover:bg-[#1f1f1f]'
-                          }`}
-                        >
-                          <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                              isSelected
-                                ? 'border-[#b89968] bg-[#b89968]'
-                                : 'border-gray-500'
-                            }`}
-                          >
-                            {isSelected && (
-                              <svg
-                                className="w-4 h-4 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={3}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </div>
-                          <span className={isSelected ? 'text-white font-medium' : 'text-gray-300'}>
-                            {option}
-                          </span>
-                          {isSelected && (
-                            <div className="ml-auto">
-                              <svg
-                                className="w-5 h-5 text-[#b89968]"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="flex items-center justify-between mt-12 pt-8 border-t border-gray-800">
-            <button
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                currentStep === 1
-                  ? 'text-gray-600 cursor-not-allowed'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              <ChevronLeft size={16} />
-              Previous
-            </button>
-
             <div className="flex items-center gap-4">
-              {currentStep < 6 && question.showSkip && (
-                <button className="text-gray-400 hover:text-white transition-colors">
-                  Skip for now
-                </button>
-              )}
-              <button
-                onClick={handleNext}
-                disabled={!isCurrentStepValid()}
-                className={`flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors ${
-                  isCurrentStepValid()
-                    ? 'bg-[#b89968] hover:bg-[#a68959] text-white'
-                    : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Next
-                <ChevronRight size={16} />
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                <span>Saved just now</span>
+              </div>
+              <button className="text-sm text-gray-300 hover:text-white transition-colors">
+                Save & Exit
               </button>
             </div>
+          </div>
+
+          <div className="flex items-start justify-between gap-1 mb-6">
+            {sections.map((section, idx) => {
+              const isCompleted = completedSections.includes(section.id);
+              const isCurrent = section.id === currentSection.id;
+
+              return (
+                <div key={section.id} className="flex items-start flex-1">
+                  <div className="flex flex-col items-center w-full">
+                    <div className="flex items-center w-full">
+                      {idx > 0 && (
+                        <div className={`flex-1 h-0.5 ${isCompleted ? 'bg-[#10b981]' : 'bg-gray-700'}`}></div>
+                      )}
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center font-medium text-sm mx-1 flex-shrink-0 ${
+                          isCompleted
+                            ? 'bg-[#10b981] text-white'
+                            : isCurrent
+                            ? 'bg-[#b89968] text-white'
+                            : 'bg-gray-700 text-gray-400'
+                        }`}
+                      >
+                        {isCompleted ? <CheckCircle size={20} strokeWidth={2.5} /> : section.id}
+                      </div>
+                      {idx < sections.length - 1 && (
+                        <div className={`flex-1 h-0.5 ${isCompleted ? 'bg-[#10b981]' : 'bg-gray-700'}`}></div>
+                      )}
+                    </div>
+                    <div className="text-xs text-center text-gray-400 mt-3 leading-tight whitespace-pre-line">
+                      {section.shortTitle}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="text-center text-sm text-gray-400">
+            Section {currentSection.id} of 6 • Question {questionInSection} of {currentSection.questions.length}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-8 py-16">
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className="text-2xl font-normal">{currentQuestion.question}</h1>
+            {currentQuestion.required ? (
+              <span className="text-xs font-semibold text-red-500">REQUIRED</span>
+            ) : (
+              <span className="text-xs font-semibold text-gray-500">OPTIONAL</span>
+            )}
+          </div>
+          {currentQuestion.description && (
+            <p className="text-sm text-gray-400">{currentQuestion.description}</p>
+          )}
+        </div>
+
+        <div className="space-y-3 mb-16">
+          {currentQuestion.options.map((option) => {
+            const isSelected = answers[currentQuestion.id] === option;
+
+            return (
+              <button
+                key={option}
+                onClick={() => handleAnswer(option)}
+                className={`w-full p-4 rounded-lg border transition-all text-left flex items-center gap-3 ${
+                  isSelected
+                    ? 'border-[#b89968] bg-[#1a1a1a]'
+                    : 'border-gray-700 bg-[#1a1a1a] hover:border-gray-600'
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    isSelected ? 'border-[#b89968]' : 'border-gray-500'
+                  }`}
+                >
+                  {isSelected && <div className="w-3 h-3 rounded-full bg-[#b89968]"></div>}
+                </div>
+                <span className="text-base text-white flex-1">{option}</span>
+                {isSelected && (
+                  <CheckCircle size={20} className="text-[#b89968] flex-shrink-0" strokeWidth={2} />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center justify-between pt-6 border-t border-gray-800">
+          <button
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 0}
+            className={`flex items-center gap-2 text-sm transition-colors ${
+              currentQuestionIndex === 0
+                ? 'text-gray-600 cursor-not-allowed'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            <ChevronLeft size={16} />
+            Previous
+          </button>
+
+          <div className="flex items-center gap-4">
+            {!currentQuestion.required && (
+              <button
+                onClick={handleNext}
+                className="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                Skip for now
+              </button>
+            )}
+            <button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+                canProceed()
+                  ? 'bg-[#b89968] hover:bg-[#a68959] text-white'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
