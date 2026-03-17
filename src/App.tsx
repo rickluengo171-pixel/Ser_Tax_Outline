@@ -8,6 +8,7 @@ import Messages from './pages/Messages';
 import DocumentCenter from './pages/DocumentCenter';
 import TaxReturn from './pages/TaxReturn';
 import Insights from './pages/Insights';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="document-center" element={<DocumentCenter />} />
           <Route path="tax-return" element={<TaxReturn />} />
           <Route path="insights" element={<Insights />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

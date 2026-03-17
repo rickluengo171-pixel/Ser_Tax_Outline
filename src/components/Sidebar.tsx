@@ -51,10 +51,19 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-gray-800">
-        <button className="flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-900 w-full transition-colors">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+              isActive
+                ? 'bg-[#b89968] text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-900'
+            }`
+          }
+        >
           <Settings size={18} />
           <span>Settings</span>
-        </button>
+        </NavLink>
         <button className="flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-900 w-full transition-colors">
           <LogOut size={18} />
           <span>Sign Out</span>
